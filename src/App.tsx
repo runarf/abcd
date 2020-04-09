@@ -71,7 +71,6 @@ const SignIn: FC<{ onLogin: (user: User) => void }> = ({ onLogin }) => {
         }
       });
     return () => unregisterAuthObserver();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -117,7 +116,6 @@ const App = () => {
     });
 
     return () => listener();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const handleOnRemove = async (abcd: Abcd) => {
