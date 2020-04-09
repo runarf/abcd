@@ -20,7 +20,7 @@ const firebaseConfig = {
   storageBucket: 'abcd-629a4.appspot.com',
   messagingSenderId: '650304935508',
   appId: '1:650304935508:web:8dc9ad5d0320cb44e5bfc1',
-  measurementId: 'G-ZVYBVPDPK5'
+  measurementId: 'G-ZVYBVPDPK5',
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -40,40 +40,48 @@ const SignIn: FC<{ onLogin: (user: User) => void }> = ({ onLogin }) => {
         signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
         // Allow the user the ability to complete sign-in cross device, including
         // the mobile apps specified in the ActionCodeSettings object below.
-        forceSameDevice: true
-      }
+        forceSameDevice: true,
+      },
     ],
     callbacks: {
-      signInSuccessWithAuthResult: authResult => {
+      signInSuccessWithAuthResult: (authResult) => {
         console.log('signed in', authResult);
         return false;
       },
-      signInFailure: async error => {
-        if (error.code != 'firebaseui/anonymous-upgrade-merge-conflict') {
+      signInFailure: async (error) => {
+        if (error.code !== 'firebaseui/anonymous-upgrade-merge-conflict') {
           return;
         }
         var cred = error.credential;
 
         firebase.auth().signInWithCredential(cred);
-      }
-    }
+      },
+    },
   };
 
   useEffect(() => {
-    const unregisterAuthObserver = firebase.auth().onAuthStateChanged(user => {
-      console.log('user signed in', user, firebase.auth().currentUser);
-      setIsSignedIn(!!user);
+    const unregisterAuthObserver = firebase
+      .auth()
+      .onAuthStateChanged((user) => {
+        console.log('user signed in', user, firebase.auth().currentUser);
+        setIsSignedIn(!!user);
 
-      if (user !== null) {
-        onLogin(user);
-      }
-    });
+        if (user !== null) {
+          onLogin(user);
+        }
+      });
     return () => unregisterAuthObserver();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div>
-      {!isSignedIn && <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth()} />}
+      {!isSignedIn && (
+        <StyledFirebaseAuth
+          uiConfig={uiConfig}
+          firebaseAuth={firebase.auth()}
+        />
+      )}
       {isSignedIn && (
         <div>
           <p>Welcome {firebase.auth().currentUser!.email}</p>
@@ -102,13 +110,14 @@ const App = () => {
     if (!currentUser) return;
     const db = firebase.firestore();
 
-    const listener = db.collection(getPath()).onSnapshot(snapshot => {
+    const listener = db.collection(getPath()).onSnapshot((snapshot) => {
       const docs = snapshot.docs;
-      const abcds: Abcd[] = docs.map(doc => doc.data() as Abcd);
+      const abcds: Abcd[] = docs.map((doc) => doc.data() as Abcd);
       setAbcds(abcds);
     });
 
     return () => listener();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const handleOnRemove = async (abcd: Abcd) => {
@@ -121,10 +130,7 @@ const App = () => {
         .get();
       console.log(snapshot.docs);
       const abcdToDeleteRef = snapshot.docs[0];
-      await db
-        .collection(getPath())
-        .doc(abcdToDeleteRef.id)
-        .delete();
+      await db.collection(getPath()).doc(abcdToDeleteRef.id).delete();
     } catch (error) {
       console.log('delete error', error);
     }
@@ -172,7 +178,7 @@ const App = () => {
           background-color: pink;
         `}
       >
-        <SignIn onLogin={user => setCurrentUser(user)} />
+        <SignIn onLogin={(user) => setCurrentUser(user)} />
       </div>
       <div
         css={css`
@@ -184,7 +190,7 @@ const App = () => {
       >
         <AbcdForm
           onSubmit={handleOnSubmit}
-          onClickTextInput={step => {
+          onClickTextInput={(step) => {
             setCurrentStep(step);
           }}
           currentUser={currentUser}
@@ -197,7 +203,9 @@ const App = () => {
           background-color: #d8c3a5;
         `}
       >
-        {currentUser ? <AbcdsTable onRemove={handleOnRemove} abcds={abcds} /> : null}
+        {currentUser ? (
+          <AbcdsTable onRemove={handleOnRemove} abcds={abcds} />
+        ) : null}
       </div>
       <div
         css={css`
